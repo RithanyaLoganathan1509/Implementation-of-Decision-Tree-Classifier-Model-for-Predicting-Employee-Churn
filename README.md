@@ -16,56 +16,56 @@ To write a program to implement the Decision Tree Classifier Model for Predictin
 
 ## Program:
 ```
+Developed by: RITHANYA L
+RegisterNumber: 25013009
+
 import pandas as pd
-import numpy as np
 from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import StandardScaler
-from sklearn.linear_model import SGDClassifier
+from sklearn.tree import DecisionTreeClassifier
 from sklearn.metrics import confusion_matrix, accuracy_score, classification_report
+from sklearn import tree
+import matplotlib.pyplot as plt
 
 data = {
-    'Hours_Studied': [2, 3, 4, 5, 6, 7, 8, 9],
-    'Previous_Score': [40, 50, 55, 60, 65, 70, 75, 80],
-    'Internship': [0, 0, 1, 0, 1, 1, 1, 1], 
-    'Placement': [0, 0, 0, 1, 1, 1, 1, 1]   
+    'satisfaction_level': [0.38, 0.80, 0.11, 0.72, 0.37, 0.41, 0.10, 0.92],
+    'last_evaluation': [0.53, 0.86, 0.88, 0.87, 0.52, 0.50, 0.77, 0.89],
+    'number_project': [2, 5, 7, 5, 2, 2, 6, 5],
+    'average_monthly_hours': [157, 262, 272, 223, 159, 153, 247, 224],
+    'time_spend_company': [3, 6, 4, 5, 3, 3, 4, 5],
+    'Work_accident': [0, 0, 0, 0, 0, 0, 0, 0],
+    'promotion_last_5years': [0, 0, 0, 0, 0, 0, 0, 0],
+    'Departments': ['sales','accounting','hr','technical','support','management','marketing','product'],
+    'salary': ['low','medium','medium','high','low','low','medium','high'],
+    'left': [1, 1, 1, 1, 1, 0, 1, 0]  # Target variable: 1=Churn, 0=Stayed
 }
 
 df = pd.DataFrame(data)
 
-X = df[['Hours_Studied', 'Previous_Score', 'Internship']]
-y = df['Placement']
+df = pd.get_dummies(df, columns=['Departments','salary'], drop_first=True)
+
+X = df.drop('left', axis=1)
+y = df['left']
 
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.25, random_state=42)
 
-scaler = StandardScaler()
-X_train = scaler.fit_transform(X_train)
-X_test = scaler.transform(X_test)
+dt_model = DecisionTreeClassifier(criterion='entropy', max_depth=4, random_state=42)
+dt_model.fit(X_train, y_train)
 
-sgd_model = SGDClassifier(loss='log_loss',       
-                          max_iter=1000,
-                          learning_rate='optimal',
-                          random_state=42)
-sgd_model.fit(X_train, y_train)
-
-y_pred = sgd_model.predict(X_test)
-y_prob = sgd_model.predict_proba(X_test)  
+y_pred = dt_model.predict(X_test)
 
 print("Confusion Matrix:\n", confusion_matrix(y_test, y_pred))
 print("\nAccuracy Score:", accuracy_score(y_test, y_pred))
 print("\nClassification Report:\n", classification_report(y_test, y_pred))
 
-new_student = np.array([[6, 68, 1]])  
-new_student_scaled = scaler.transform(new_student)
-placement_pred = sgd_model.predict(new_student_scaled)
-placement_prob = sgd_model.predict_proba(new_student_scaled)
-
-print(f"\nPredicted Placement Status: {'Placed' if placement_pred[0]==1 else 'Not Placed'}")
-print(f"Probability of Placement: {placement_prob[0][1]:.2f}")
+plt.figure(figsize=(20,10))
+tree.plot_tree(dt_model, feature_names=X.columns, class_names=['Stayed','Churn'], filled=True)
+plt.show()
 
 ```
 
 ## Output:
 <img width="561" height="358" alt="image" src="https://github.com/user-attachments/assets/1d113e91-22d4-48f5-9ba7-6ca25e829e4a" />
+<img width="1341" height="684" alt="image" src="https://github.com/user-attachments/assets/674636c9-2e29-4f62-a678-8d6f1ea03453" />
 
 
 
